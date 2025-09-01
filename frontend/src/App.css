@@ -1443,8 +1443,8 @@ footer p {
   .search-filter-container {
     flex-direction: column;
     gap: 15px;
-    padding: 20px 15px;
     margin: 20px 10px;
+    padding: 20px 15px;
     width: calc(100% - 40px);
     box-sizing: border-box;
   }
@@ -1462,17 +1462,17 @@ footer p {
     max-width: 100%;
   }
   
+  .category-filter {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
   .category-select {
     width: 100%;
     padding: 12px 15px;
+    font-size: 16px;
     box-sizing: border-box;
     max-width: 100%;
-    min-width: auto;
-  }
-  
-  .category-filter {
-    width: 100%;
-    justify-content: stretch;
   }
   
   /* Мобильные исправления для отзывов */
@@ -1541,18 +1541,17 @@ footer p {
     max-width: 100%;
   }
   
+  .category-filter {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
   .category-select {
     width: 100%;
     padding: 10px 12px;
     font-size: 16px;
     box-sizing: border-box;
     max-width: 100%;
-    min-width: auto;
-  }
-  
-  .category-filter {
-    width: 100%;
-    justify-content: stretch;
   }
   
   .modal-content {
