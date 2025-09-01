@@ -1434,6 +1434,65 @@ footer p {
     grid-column: 2;
     justify-self: end;
   }
+  
+  /* Мобильные исправления для поиска */
+  .search-filter-container {
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px 15px;
+    margin: 20px 10px;
+    width: calc(100% - 40px);
+    box-sizing: border-box;
+  }
+  
+  .search-box {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    font-size: 16px;
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+  
+  .category-select {
+    width: 100%;
+    padding: 12px 15px;
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+  
+  /* Мобильные исправления для отзывов */
+  .add-review-form {
+    margin: 20px 10px;
+    padding: 20px 15px;
+    width: calc(100% - 40px);
+    box-sizing: border-box;
+  }
+  
+  .review-input,
+  .review-textarea {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 16px;
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+  
+  .review-textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+  
+  .submit-review-btn {
+    padding: 12px 25px;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1453,13 +1512,65 @@ footer p {
   }
   
   .search-filter-container {
-    margin: 20px 10px;
-    padding: 20px;
+    margin: 15px 5px;
+    padding: 15px 10px;
+    width: calc(100% - 20px);
+    box-sizing: border-box;
+  }
+  
+  .search-box {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 10px 35px 10px 12px;
+    font-size: 16px;
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+  
+  .category-select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 16px;
+    box-sizing: border-box;
+    max-width: 100%;
   }
   
   .modal-content {
     padding: 20px;
     margin: 20px;
+  }
+  
+  /* Мобильные исправления для отзывов */
+  .add-review-form {
+    margin: 15px 5px;
+    padding: 15px 10px;
+    width: calc(100% - 20px);
+    box-sizing: border-box;
+  }
+  
+  .add-review-form h3 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+  }
+  
+  .review-input,
+  .review-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 16px;
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+  
+  .submit-review-btn {
+    width: 100%;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    box-sizing: border-box;
   }
 }
 
