@@ -10,6 +10,20 @@ body {
   background: #0f172a;
   color: #fff;
   overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+html {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+.app {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 /* Temu-style Header */
@@ -3725,14 +3739,17 @@ footer p {
 /* Responsive Cart */
 @media (max-width: 768px) {
   .cart-modal {
-    margin: 20px;
-    max-height: 70vh;
+    margin: 5px;
+    max-height: 90vh;
+    width: calc(100% - 10px);
+    max-width: none;
   }
   
   .cart-item {
     flex-direction: column;
     text-align: center;
     gap: 10px;
+    padding: 10px;
   }
   
   .cart-item-quantity {
@@ -3743,17 +3760,31 @@ footer p {
     flex-direction: column;
     gap: 10px;
     text-align: center;
+    padding: 10px;
   }
   
   .cart-header h2 {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
+  }
+  
+  .modal-content {
+    margin: 5px;
+    padding: 15px;
+    width: calc(100% - 10px);
+    max-width: none;
   }
 }
 
 @media (max-width: 480px) {
   .cart-modal {
-    margin: 10px;
-    padding: 20px;
+    margin: 2px;
+    padding: 10px;
+    width: calc(100% - 4px);
+    max-width: none;
+  }
+  
+  .cart-item {
+    padding: 8px;
   }
   
   .cart-item-image {
@@ -3762,7 +3793,7 @@ footer p {
   }
   
   .cart-item-info h3 {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
   
   .quantity-btn {
@@ -3774,6 +3805,16 @@ footer p {
   .remove-btn {
     width: 30px;
     height: 30px;
+  }
+  
+  .modal-content {
+    margin: 2px;
+    padding: 10px;
+    width: calc(100% - 4px);
+  }
+  
+  .cart-header h2 {
+    font-size: 1.1rem;
   }
 }
 
