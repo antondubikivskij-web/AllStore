@@ -564,12 +564,15 @@ app.get('/api/search', (req, res) => {
 
 // Получить категории
 app.get('/api/categories', (req, res) => {
-  db.all('SELECT DISTINCT category as name FROM products WHERE category IS NOT NULL AND category != "" ORDER BY category', (err, rows) => {
+  db.all('SELECT DISTINCT category FROM products WHERE category IS NOT NULL AND category != "" ORDER BY category', (err, rows) => {
     if (err) {
+      console.error('Ошибка получения категорий:', err);
       res.status(500).json({ error: err.message });
       return;
     }
-    res.json(rows.map(row => row.name));
+    const categories = rows.map(row => row.category).filter(cat => cat && cat.trim());
+    console.log('Найденные категории:', categories);
+    res.json(categories);
   });
 });
 
