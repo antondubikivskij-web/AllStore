@@ -85,6 +85,7 @@ const db = new sqlite3.Database('./store.db', (err) => {
       category TEXT,
       stock INTEGER DEFAULT 0,
       discount REAL DEFAULT 0,
+      specifications TEXT DEFAULT '',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`, (err) => {
       if (err) {
@@ -117,19 +118,7 @@ function initDatabase() {
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
 
-  // Таблица товаров
-  db.run(`CREATE TABLE IF NOT EXISTS products (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    price REAL NOT NULL,
-    description TEXT,
-    image TEXT,
-    category TEXT,
-    stock INTEGER DEFAULT 0,
-    discount REAL DEFAULT 0,
-    specifications TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`);
+
 
   // Таблица корзины
   db.run(`CREATE TABLE IF NOT EXISTS cart (
@@ -185,14 +174,7 @@ function initDatabase() {
     }
   });
 
-  // Добавляем поле specifications если его нет
-  db.run(`ALTER TABLE products ADD COLUMN specifications TEXT DEFAULT ''`, (err) => {
-    if (err && !err.message.includes('duplicate column name')) {
-      console.error('Ошибка добавления поля specifications:', err);
-    } else {
-      console.log('Поле specifications добавлено или уже существует');
-    }
-  });
+
 
   // Добавляем админа по умолчанию
   const adminPassword = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'admin123', 10);
@@ -557,12 +539,12 @@ app.get('/api/search', (req, res) => {
 
 // Получить категории
 app.get('/api/categories', (req, res) => {
-  db.all('SELECT * FROM categories ORDER BY name', (err, rows) => {
+  db.all('SELECT DISTINCT category as name FROM products WHERE category IS NOT NULL AND category != "" ORDER BY category', (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message });
       return;
     }
-    res.json(rows);
+    res.json(rows.map(row => row.name));
   });
 });
 
