@@ -1418,6 +1418,32 @@ footer p {
     font-size: 14px;
   }
   
+  .header-container {
+    padding: 0 15px;
+    flex-wrap: wrap;
+  }
+  
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .cart-icon {
+    width: 45px;
+    height: 45px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    border-radius: 50%;
+    color: #1e293b;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+  
   .banner h1 {
     font-size: 2.5rem;
   }
@@ -1521,6 +1547,38 @@ footer p {
 }
 
 @media (max-width: 480px) {
+  .header-container {
+    padding: 0 10px;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+  }
+  
+  .nav {
+    gap: 10px;
+  }
+  
+  .nav a {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+  
+  .cart-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    display: flex !important;
+  }
+  
+  .cart-count {
+    width: 20px;
+    height: 20px;
+    font-size: 11px;
+    top: -5px;
+    right: -5px;
+  }
+  
   .banner h1 {
     font-size: 2rem;
   }
