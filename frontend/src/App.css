@@ -374,7 +374,7 @@ body {
   padding: 30px;
   border-radius: 20px;
   margin: 30px auto;
-  max-width: 800px;
+  max-width: 1000px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   border: 2px solid rgba(255, 215, 0, 0.2);
   display: flex;
@@ -1444,9 +1444,10 @@ footer p {
     flex-direction: column;
     gap: 15px;
     margin: 2px 1px;
-    padding: 5px 2px;
+    padding: 8px 5px;
     width: calc(100% - 4px);
     box-sizing: border-box;
+    max-width: none;
   }
   
   .search-box {
@@ -1523,9 +1524,10 @@ footer p {
   
   .search-filter-container {
     margin: 1px 0px;
-    padding: 3px 1px;
+    padding: 5px 3px;
     width: calc(100% - 2px);
     box-sizing: border-box;
+    max-width: none;
   }
   
   .search-box {
