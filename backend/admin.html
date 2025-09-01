@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AllStore - Адмін-панель</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Стили для отображения скидок */
+        .original-price {
+            text-decoration: line-through;
+            color: #94a3b8;
+            margin-right: 5px;
+        }
+        
+        .discounted-price {
+            color: #fbbf24;
+            font-weight: bold;
+        }
+        
+        .discount-badge {
+            background-color: #ef4444;
+            color: white;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid #334155;
+        }
+
+        .admin-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #fbbf24;
+        }
+
+        .admin-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .admin-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid #fbbf24;
+            color: #fbbf24;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .tab-btn:hover, .tab-btn.active {
+            background: #fbbf24;
+            color: #0f172a;
+        }
+
+        .admin-content {
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            min-height: 500px;
+            border: 1px solid #334155;
+        }
+
+        .login-form {
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .login-form h2 {
+            margin-bottom: 30px;
+            color: #fbbf24;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #fbbf24;
+            border-radius: 10px;
+            background: rgba(30, 41, 59, 0.8);
+            color: #e2e8f0;
+            font-size: 16px;
+        }
+
+        .form-group input::placeholder {
+            color: rgba(226, 232, 240, 0.7);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: #fbbf24;
+            color: #0f172a;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background: #f59e0b;
+            transform: translateY(-2px);
+        }
+
+        .dashboard {
+            display: none;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #fbbf24;
+        }
+
+        .stat-card i {
+            font-size: 2.5rem;
+            color: #fbbf24;
+            margin-bottom: 15px;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .site-control {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #fbbf24;
+        }
+
+        .site-control h3 {
+            color: #fbbf24;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+
+        .enable-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .disable-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .message-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #fbbf24;
+            border-radius: 10px;
+            background: rgba(30, 41, 59, 0.8);
+            color: #e2e8f0;
+            font-size: 16px;
+            margin-top: 15px;
+            resize: vertical;
+        }
+
+        .message-input::placeholder {
+            color: rgba(226, 232, 240, 0.7);
+        }
+
+        .status-indicator {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .status-online {
+            background: rgba(16, 185, 129, 0.2);
+            border: 2px solid #10b981;
+            color: #10b981;
+        }
+
+        .status-offline {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 2px solid #10b981;
+            color: #10b981;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: rgba(239, 68, 68, 0.8);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 10px;
+            }
+            
+            .admin-header h1 {
+                font-size: 2rem;
+            }
+            
+            .control-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        /* Products Section */
+        .products-section, .orders-section {
+            max-width: 100%;
+        }
+
+        .add-product-form {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #fbbf24;
+        }
+
+        .add-product-form h4 {
+            color: #fbbf24;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #fbbf24;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #fbbf24;
+            border-radius: 8px;
+            background: rgba(30, 41, 59, 0.8);
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(226, 232, 240, 0.7);
+        }
+
+        .submit-btn {
+            background: #fbbf24;
+            color: #0f172a;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .submit-btn:hover {
+            background: #f59e0b;
+            transform: translateY(-2px);
+        }
+        
+        .cancel-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 10px;
+        }
+        
+        .cancel-btn:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .product-card {
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #fbbf24;
+            position: relative;
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        /* Стили для категорий */
+        .categories-section {
+            margin-bottom: 30px;
+        }
+        
+        .add-category-form {
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid #fbbf24;
+        }
+        
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .category-card {
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 15px;
+            padding: 15px;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid #334155;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-color: #fbbf24;
+        }
+        
+        .category-name {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #e2e8f0;
+        }
+        
+        .category-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .edit-category-btn, .delete-category-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .edit-category-btn {
+            color: #10b981;
+        }
+        
+        .delete-category-btn {
+            color: #ef4444;
+        }
+        
+        .edit-category-btn:hover, .delete-category-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .edit-category-form {
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .edit-category-form.active {
+            display: block;
+        }
+        
+        /* Стили для переключателя скидок */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        .toggle-input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-label {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(30, 41, 59, 0.8);
+            transition: .4s;
+            border-radius: 34px;
+            border: 2px solid #334155;
+        }
+        .toggle-label:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 2px;
+            background-color: #e2e8f0;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        .toggle-input:checked + .toggle-label {
+            background-color: rgba(16, 185, 129, 0.2);
+            border-color: #10b981;
+        }
+        .toggle-input:checked + .toggle-label:before {
+            transform: translateX(30px);
+            background-color: #10b981;
+        }
+        .discount-active-group {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding-bottom: 5px;
+        }
+        
+        /* Стили для глобального переключателя скидок */
+        .discount-toggle-section {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #fbbf24;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .discount-toggle-section h3 {
+            color: #fbbf24;
+            margin: 0;
+        }
+        
+        .discount-toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .product-card h4 {
+            color: #fbbf24;
+            margin-bottom: 10px;
+        }
+
+        .product-card p {
+            color: #e2e8f0;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        /* Стили для товаров со скидкой */
+        .product-card.discounted {
+            border-color: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+        }
+        
+        .original-price {
+            text-decoration: line-through;
+            color: #94a3b8;
+            margin-right: 8px;
+        }
+        
+        .discounted-price {
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .discount-badge {
+            background-color: #10b981;
+            color: white;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+            font-weight: bold;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .edit-btn, .delete-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .edit-btn:hover, .delete-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .telegram-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .telegram-btn {
+            background: #0088cc;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .telegram-btn:hover {
+            background: #0077b3;
+            transform: translateY(-2px);
+        }
+
+        /* Orders Section */
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .order-card {
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #fbbf24;
+        }
+
+        .order-card h4 {
+            color: #fbbf24;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .status-completed {
+            background: #10b981;
+            color: white;
+        }
+
+        .order-info {
+            margin-bottom: 10px;
+        }
+
+        .order-info p {
+            color: #e2e8f0;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .order-items {
+            background: rgba(30, 41, 59, 0.6);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .order-items p {
+            color: #e2e8f0;
+            font-size: 13px;
+            margin-bottom: 3px;
+        }
+
+        .status-select {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #fbbf24;
+            border-radius: 6px;
+            background: rgba(30, 41, 59, 0.8);
+            color: #e2e8f0;
+            margin-top: 10px;
+        }
+
+        .status-select option {
+            background: #0f172a;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div id="loginSection">
+            <div class="admin-header">
+                <h1><i class="fas fa-shield-alt"></i> AllStore Адмін</h1>
+                <p>Панель управління магазином</p>
+            </div>
+            
+            <div class="admin-content">
+                <form class="login-form" id="loginForm">
+                    <h2><i class="fas fa-sign-in-alt"></i> Вхід в систему</h2>
+                    <div class="form-group">
+                        <input type="text" id="username" placeholder="Ім'я користувача" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="password" placeholder="Пароль" required>
+                    </div>
+                    <button type="submit" class="login-btn">
+                        <i class="fas fa-sign-in-alt"></i> Увійти
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div id="dashboardSection" style="display: none;">
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Вийти
+            </button>
+            
+            <div class="admin-header">
+                <h1><i class="fas fa-cogs"></i> Панель управління</h1>
+                <p>Керування сайтом та товарами</p>
+            </div>
+
+            <div class="admin-tabs">
+                <button class="tab-btn active" onclick="showTab('dashboard')">
+                    <i class="fas fa-chart-bar"></i> Дашборд
+                </button>
+                <button class="tab-btn" onclick="showTab('products')">
+                    <i class="fas fa-box"></i> Товари
+                </button>
+                <button class="tab-btn" onclick="showTab('categories')">
+                    <i class="fas fa-tags"></i> Категорії
+                </button>
+                <button class="tab-btn" onclick="showTab('orders')">
+                    <i class="fas fa-shopping-cart"></i> Замовлення
+                </button>
+                <button class="tab-btn" onclick="showTab('site-control')">
+                    <i class="fas fa-power-off"></i> Управління сайтом
+                </button>
+            </div>
+
+            <div id="dashboardTab" class="admin-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-box"></i>
+                        <h3 id="totalProducts">0</h3>
+                        <p>Товарів</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h3 id="totalOrders">0</h3>
+                        <p>Замовлень</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-money-bill"></i>
+                        <h3 id="totalRevenue">0 ₴</h3>
+                        <p>Виручка</p>
+                    </div>
+                </div>
+
+                <div class="site-control">
+                    <h3><i class="fas fa-info-circle"></i> Статус сайту</h3>
+                    <div id="statusIndicator" class="status-indicator">
+                        Перевірка статусу...
+                    </div>
+                </div>
+            </div>
+
+            <div id="categoriesTab" class="admin-content" style="display: none;">
+                <div class="categories-section">
+                    <h3><i class="fas fa-tags"></i> Управління категоріями</h3>
+                    
+                    <!-- Форма додавання категорії -->
+                    <div class="add-category-form">
+                        <h4><i class="fas fa-plus"></i> Додати нову категорію</h4>
+                        <div class="form-group">
+                            <input type="text" id="newCategoryName" placeholder="Назва категорії" class="form-input">
+                        </div>
+                        <button class="btn btn-primary" onclick="addCategory()">
+                            <i class="fas fa-plus"></i> Додати категорію
+                        </button>
+                    </div>
+                    
+                    <!-- Список категорій -->
+                    <h4><i class="fas fa-list"></i> Список категорій</h4>
+                    <div id="categoriesGrid" class="categories-grid">
+                        <!-- Категорії будуть додані через JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="productsTab" class="admin-content" style="display: none;">
+                <div class="products-section">
+                    <h3><i class="fas fa-box"></i> Управління товарами</h3>
+                    
+                    <!-- Форма додавання товару -->
+                    <div class="add-product-form">
+                        <h4><i class="fas fa-plus"></i> Додати новий товар</h4>
+                        <form id="addProductForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Назва товару</label>
+                                    <input type="text" id="productName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Ціна (₴)</label>
+                                    <input type="number" id="productPrice" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Категорія</label>
+                                    <select id="productCategory" class="form-input">
+                                        <option value="">Виберіть категорію</option>
+                                        <!-- Категорії будуть додані через JavaScript -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Залишок</label>
+                                    <input type="number" id="productStock" value="0">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Знижка (%)</label>
+                                    <input type="number" id="productDiscount" value="0" min="0" max="99">
+                                </div>
+                                <div class="form-group discount-active-group">
+                                    <label>Активувати знижку</label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="discountActive" class="toggle-input">
+                                        <label for="discountActive" class="toggle-label"></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>URL зображення</label>
+                                <input type="url" id="productImage">
+                            </div>
+                            <div class="form-group">
+                                <label>Опис</label>
+                                <textarea id="productDescription" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="submit-btn">
+                                <i class="fas fa-plus"></i> Додати товар
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Список товарів -->
+                    <div class="products-list">
+                        <h4><i class="fas fa-list"></i> Список товарів</h4>
+                        <div id="productsList" class="products-grid">
+                            <!-- Товари будуть завантажені тут -->
+                        </div>
+                    </div>
+
+                    <!-- Кнопка відправки в Telegram -->
+                    <div class="telegram-section">
+                        <button class="telegram-btn" onclick="sendAllToTelegram()">
+                            <i class="fab fa-telegram"></i> Відправити всі товари в Telegram
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ordersTab" class="admin-content" style="display: none;">
+                <div class="orders-section">
+                    <h3><i class="fas fa-shopping-cart"></i> Управління замовленнями</h3>
+                    
+                    <div id="ordersList" class="orders-grid">
+                        <!-- Замовлення будуть завантажені тут -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="siteControlTab" class="admin-content" style="display: none;">
+                <div class="site-control-section">
+                    <h3><i class="fas fa-power-off"></i> Управління сайтом</h3>
+                    
+                    <div class="site-status">
+                        <h4>Поточний статус:</h4>
+                        <div id="statusIndicator2" class="status-indicator">
+                            Перевірка статусу...
+                        </div>
+                    </div>
+                    
+                    <div class="control-buttons">
+                        <button class="control-btn enable-btn" onclick="enableSite()">
+                            <i class="fas fa-play"></i> Увімкнути сайт
+                        </button>
+                        <button class="control-btn disable-btn" onclick="disableSite()">
+                            <i class="fas fa-pause"></i> Вимкнути сайт
+                        </button>
+                    </div>
+
+                    <textarea 
+                        class="message-input" 
+                        id="maintenanceMessage" 
+                        placeholder="Повідомлення для користувачів (коли сайт вимкнений)..."
+                        rows="3"
+                    >Сайт на оновленні. Скоро повернемося!</textarea>
+                        </form>
+                    </div>
+
+                    <!-- Список категорій -->
+                    <div class="categories-list">
+                        <h4><i class="fas fa-list"></i> Список категорій</h4>
+                        <div id="categoriesList" class="categories-grid">
+                            <!-- Категорії будуть завантажені тут -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="siteControlTab" class="admin-content" style="display: none;">
+                <div class="site-control">
+                    <h3><i class="fas fa-power-off"></i> Управління сайтом</h3>
+                    
+                    <div id="statusIndicator2" class="status-indicator">
+                        Перевірка статусу...
+                    </div>
+
+                    <div class="control-buttons">
+                        <button class="control-btn enable-btn" onclick="enableSite()">
+                            <i class="fas fa-play"></i> Увімкнути сайт
+                        </button>
+                        <button class="control-btn disable-btn" onclick="disableSite()">
+                            <i class="fas fa-pause"></i> Вимкнути сайт
+                        </button>
+                    </div>
+
+                    <textarea 
+                        class="message-input" 
+                        id="maintenanceMessage" 
+                        placeholder="Повідомлення для користувачів (коли сайт вимкнений)..."
+                        rows="3"
+                    >Сайт на оновленні. Скоро повернемося!</textarea>
+                    
+                    <div class="discount-toggle-section">
+                        <h3><i class="fas fa-percent"></i> Управління знижками</h3>
+                        <div class="discount-toggle-container">
+                            <span>Глобальне відображення знижок:</span>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="globalDiscountToggle" class="toggle-input">
+                                <label for="globalDiscountToggle" class="toggle-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = '/api';
+        let isLoggedIn = false;
+
+        // Логин
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    isLoggedIn = true;
+                    showDashboard();
+                    loadStats();
+                    loadSiteStatus();
+                } else {
+                    alert('Невірні облікові дані');
+                }
+            } catch (error) {
+                console.error('Помилка входу:', error);
+                alert('Помилка входу');
+            }
+        });
+
+        // Показати дашборд
+        function showDashboard() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+        }
+
+        // Вийти
+        function logout() {
+            isLoggedIn = false;
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // Показати вкладку
+        function showTab(tabName) {
+            // Сховати всі вкладки
+            document.querySelectorAll('.admin-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Видалити активний клас з усіх кнопок
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Показати потрібну вкладку
+            if (tabName === 'dashboard') {
+                document.getElementById('dashboardTab').style.display = 'block';
+                document.querySelector('.tab-btn').classList.add('active');
+            } else if (tabName === 'products') {
+                document.getElementById('productsTab').style.display = 'block';
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                loadProducts();
+            } else if (tabName === 'categories') {
+                document.getElementById('categoriesTab').style.display = 'block';
+                document.querySelectorAll('.tab-btn')[2].classList.add('active');
+                loadCategories();
+            } else if (tabName === 'orders') {
+                document.getElementById('ordersTab').style.display = 'block';
+                document.querySelectorAll('.tab-btn')[3].classList.add('active');
+                loadOrders();
+            } else if (tabName === 'site-control') {
+                document.getElementById('siteControlTab').style.display = 'block';
+                document.querySelectorAll('.tab-btn')[4].classList.add('active');
+            }
+        }
+
+        // Завантажити статистику
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/stats`);
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('totalProducts').textContent = stats.total_products || 0;
+                    document.getElementById('totalOrders').textContent = stats.total_orders || 0;
+                    document.getElementById('totalRevenue').textContent = `${stats.total_revenue || 0} ₴`;
+                }
+            } catch (error) {
+                console.error('Помилка завантаження статистики:', error);
+            }
+        }
+
+        // Завантажити статус сайту
+        async function loadSiteStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/site-status`);
+                if (response.ok) {
+                    const status = await response.json();
+                    updateStatusIndicator(status);
+                }
+            } catch (error) {
+                console.error('Помилка завантаження статусу:', error);
+            }
+        }
+
+        // Оновити індикатор статусу
+        function updateStatusIndicator(status) {
+            const indicators = document.querySelectorAll('#statusIndicator, #statusIndicator2');
+            
+            indicators.forEach(indicator => {
+                if (status.enabled) {
+                    indicator.className = 'status-indicator status-online';
+                    indicator.innerHTML = '<i class="fas fa-check-circle"></i> Сайт працює';
+                } else {
+                    indicator.className = 'status-indicator status-offline';
+                    indicator.innerHTML = '<i class="fas fa-times-circle"></i> Сайт вимкнений';
+                }
+            });
+        }
+
+        // Увімкнути сайт
+        async function enableSite() {
+            try {
+                const message = document.getElementById('maintenanceMessage').value;
+                const response = await fetch(`${API_BASE_URL}/admin/settings`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        site_enabled: 'true',
+                        maintenance_message: message
+                    })
+                });
+
+                if (response.ok) {
+                    showAlert('Сайт увімкнено!', 'success');
+                    loadSiteStatus();
+                } else {
+                    showAlert('Помилка увімкнення сайту', 'error');
+                }
+            } catch (error) {
+                console.error('Помилка увімкнення сайту:', error);
+                showAlert('Помилка увімкнення сайту', 'error');
+            }
+        }
+
+        // Вимкнути сайт
+        async function disableSite() {
+            try {
+                const message = document.getElementById('maintenanceMessage').value;
+                const response = await fetch(`${API_BASE_URL}/admin/settings`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        site_enabled: 'false',
+                        maintenance_message: message
+                    })
+                });
+
+                if (response.ok) {
+                    showAlert('Сайт вимкнено!', 'success');
+                    loadSiteStatus();
+                } else {
+                    showAlert('Помилка вимкнення сайту', 'error');
+                }
+            } catch (error) {
+                console.error('Помилка вимкнення сайту:', error);
+                showAlert('Помилка вимкнення сайту', 'error');
+            }
+        }
+
+        // Показати повідомлення
+        function showAlert(message, type) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            const container = document.querySelector('.admin-container');
+            container.insertBefore(alert, container.firstChild);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+
+        // Завантажити налаштування при відкритті вкладки
+        async function loadSettings() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/settings`);
+                if (response.ok) {
+                    const settings = await response.json();
+                    if (settings.maintenance_message) {
+                        document.getElementById('maintenanceMessage').value = settings.maintenance_message;
+                    }
+                    
+                    // Обновляем состояние переключателя скидок
+                    if (settings.show_discounts !== undefined) {
+                        const globalDiscountToggle = document.getElementById('globalDiscountToggle');
+                        if (globalDiscountToggle) {
+                            globalDiscountToggle.checked = settings.show_discounts === 'true';
+                        }
+                    }
+                    
+                    // Инициализируем обработчик переключателя скидок
+                    initDiscountToggle();
+                }
+            } catch (error) {
+                console.error('Помилка завантаження налаштувань:', error);
+            }
+        }
+        
+        // Включить отображение скидок
+        async function enableDiscounts() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/settings`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        show_discounts: 'true'
+                    })
+                });
+
+                if (response.ok) {
+                    showAlert('Знижки увімкнено!', 'success');
+                    loadSiteStatus();
+                } else {
+                    showAlert('Помилка увімкнення знижок', 'error');
+                }
+            } catch (error) {
+                console.error('Помилка увімкнення знижок:', error);
+                showAlert('Помилка увімкнення знижок', 'error');
+            }
+        }
+
+        // Выключить отображение скидок
+        async function disableDiscounts() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/settings`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        show_discounts: 'false'
+                    })
+                });
+
+                if (response.ok) {
+                    showAlert('Знижки вимкнено!', 'success');
+                    loadSiteStatus();
+                } else {
+                    showAlert('Помилка вимкнення знижок', 'error');
+                }
+            } catch (error) {
+                console.error('Помилка вимкнення знижок:', error);
+                showAlert('Помилка вимкнення знижок', 'error');
+            }
+        }
+        
+        // Обработчик переключения глобального переключателя скидок
+        function initDiscountToggle() {
+            const globalDiscountToggle = document.getElementById('globalDiscountToggle');
+            if (globalDiscountToggle) {
+                // Удаляем предыдущий обработчик, чтобы избежать дублирования
+                globalDiscountToggle.removeEventListener('change', handleDiscountToggle);
+                // Добавляем новый обработчик
+                globalDiscountToggle.addEventListener('change', handleDiscountToggle);
+            }
+        }
+        
+        // Функция-обработчик изменения переключателя скидок
+        function handleDiscountToggle() {
+            if (this.checked) {
+                enableDiscounts();
+            } else {
+                disableDiscounts();
+            }
+        }
+        
+        // Инициализируем переключатель при загрузке DOM
+        document.addEventListener('DOMContentLoaded', initDiscountToggle);
+
+        // Завантажити налаштування при відкритті вкладки "Управління сайтом"
+        document.querySelectorAll('.tab-btn')[4].addEventListener('click', loadSettings);
+        
+        // Також завантажуємо налаштування при завантаженні сторінки
+        document.addEventListener('DOMContentLoaded', function() {
+            // Завантажуємо налаштування при завантаженні сторінки
+            loadSettings();
+        });
+
+        // Завантажити товари при відкритті вкладки "Товари"
+        document.querySelectorAll('.tab-btn')[1].addEventListener('click', loadProducts);
+
+        // Завантажити замовлення при відкритті вкладки "Замовлення"
+        document.querySelectorAll('.tab-btn')[2].addEventListener('click', loadOrders);
+
+        // Обробник форми додавання товару
+        document.getElementById('addProductForm').addEventListener('submit', handleAddProduct);
+
+        // Завантажити товари
+        async function loadProducts() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/products`);
+                if (response.ok) {
+                    const products = await response.json();
+                    displayProducts(products);
+                }
+            } catch (error) {
+                console.error('Помилка завантаження товарів:', error);
+            }
+        }
+
+        // Відобразити товари
+        function displayProducts(products) {
+            const productsList = document.getElementById('productsList');
+            productsList.innerHTML = '';
+
+            if (products.length === 0) {
+                productsList.innerHTML = '<p style="text-align: center; color: #ccc;">Товари не знайдено</p>';
+                return;
+            }
+
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                
+                // Добавляем класс для товаров со скидкой
+                if (product.discount > 0) {
+                    productCard.classList.add('discounted');
+                }
+                
+                // Формируем HTML для отображения цены и скидки
+                let priceHTML = `<p><strong>Ціна:</strong> ${product.price} ₴</p>`;
+                if (product.discount > 0) {
+                    const discountedPrice = product.discounted_price || (product.price - (product.price * product.discount / 100));
+                    priceHTML = `
+                        <p>
+                            <strong>Ціна:</strong> 
+                            <span class="original-price">${product.price} ₴</span> 
+                            <span class="discounted-price">${discountedPrice.toFixed(2)} ₴</span>
+                            <span class="discount-badge">-${product.discount}%</span>
+                        </p>
+                    `;
+                }
+                
+                productCard.innerHTML = `
+                    ${product.image ? `<img src="${product.image}" alt="${product.name}" onerror="this.style.display='none'">` : ''}
+                    <h4>${product.name}</h4>
+                    ${priceHTML}
+                    <p><strong>Категорія:</strong> ${product.category || 'Не вказано'}</p>
+                    <p><strong>Залишок:</strong> ${product.stock || 0} шт.</p>
+                    ${product.discount > 0 ? `<p><strong>Знижка:</strong> ${product.discount}%</p>` : ''}
+                    <p><strong>Опис:</strong> ${product.description || 'Без опису'}</p>
+                    <div class="product-actions">
+                        <button class="edit-btn" onclick="editProduct(${product.id})">
+                            <i class="fas fa-edit"></i> Редагувати
+                        </button>
+                        <button class="delete-btn" onclick="deleteProduct(${product.id})">
+                            <i class="fas fa-trash"></i> Видалити
+                        </button>
+                    </div>
+                `;
+                productsList.appendChild(productCard);
+            });
+        }
+
+        // Додати товар
+        async function handleAddProduct(e) {
+            e.preventDefault();
+            
+            // Получаем значение переключателя скидки
+            const discountActive = document.getElementById('discountActive') ? document.getElementById('discountActive').checked : false;
+            const discount = discountActive ? parseFloat(document.getElementById('productDiscount').value) || 0 : 0;
+            
+            const productData = {
+                name: document.getElementById('productName').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                category: document.getElementById('productCategory').value,
+                stock: parseInt(document.getElementById('productStock').value) || 0,
+                image: document.getElementById('productImage').value,
+                description: document.getElementById('productDescription').value,
+                discount: discount // Добавляем скидку
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/products`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(productData)
+                });
+
+                if (response.ok) {
+                    showAlert('Товар додано!', 'success');
+                    document.getElementById('addProductForm').reset();
+                    loadProducts();
+                    loadStats();
+                } else {
+                    showAlert('Помилка додавання товару', 'error');
+                }
+            } catch (error) {
+                console.error('Помилка додавання товару:', error);
+                showAlert('Помилка додавання товару', 'error');
+            }
+        }
+
+        // Видалити товар
+        async function deleteProduct(productId) {
+            if (!confirm('Ви впевнені, що хочете видалити цей товар?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/products/${productId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showAlert('Товар видалено!', 'success');
+                    loadProducts();
+                    loadStats();
+                } else {
+                    showAlert('Помилка видалення товару', 'error');
+                }
+            } catch (error) {
+                console.error('Помилка видалення товару:', error);
+                showAlert('Помилка видалення товару', 'error');
+            }
+        }
+        
+        // Редагувати товар - відкрити форму редагування
+        async function editProduct(productId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/products/${productId}`);
+                if (response.ok) {
+                    const product = await response.json();
+                    
+                    // Заповнити форму даними товару
+                    document.getElementById('productName').value = product.name;
+                    document.getElementById('productPrice').value = product.price;
+                    document.getElementById('productCategory').value = product.category || '';
+                    document.getElementById('productStock').value = product.stock || 0;
+                    document.getElementById('productImage').value = product.image || '';
+                    document.getElementById('productDescription').value = product.description || '';
+                    
+                    // Заполняем поля скидки
+                    if (document.getElementById('productDiscount')) {
+                        document.getElementById('productDiscount').value = product.discount || 0;
+                    }
+                    if (document.getElementById('discountActive')) {
+                        document.getElementById('discountActive').checked = product.discount > 0;
+                    }
+                    
+                    // Змінити кнопку форми
+                    const submitBtn = document.querySelector('#addProductForm .submit-btn');
+                    submitBtn.innerHTML = '<i class="fas fa-save"></i> Зберегти зміни';
+                    
+                    // Змінити обробник форми
+                    const form = document.getElementById('addProductForm');
+                    form.removeEventListener('submit', handleAddProduct);
+                    form.addEventListener('submit', (e) => handleUpdateProduct(e, productId));
+                    
+                    // Додати кнопку скасування
+                    if (!document.getElementById('cancelEditBtn')) {
+                        const cancelBtn = document.createElement('button');
+                        cancelBtn.id = 'cancelEditBtn';
+                        cancelBtn.className = 'cancel-btn';
+                        cancelBtn.type = 'button';
+                        cancelBtn.innerHTML = '<i class="fas fa-times"></i> Скасувати';
+                        cancelBtn.addEventListener('click', resetProductForm);
+                        submitBtn.parentNode.insertBefore(cancelBtn, submitBtn.nextSibling);
+                    }
+                    
+                    // Прокрутити до форми
+                    document.querySelector('.add-product-form').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    showAlert('Помилка завантаження товару', 'error');
+                }
+            } catch (error) {
+                console.error('Помилка завантаження товару:', error);
+                showAlert('Помилка завантаження товару', 'error');
+            }
+        }
+        
+        // Оновити товар
+        async function handleUpdateProduct(e, productId) {
+            e.preventDefault();
+            
+            // Получаем значение переключателя скидки
+            const discountActive = document.getElementById('discountActive') ? document.getElementById('discountActive').checked : false;
+            const discount = discountActive ? parseFloat(document.getElementById('productDiscount').value) || 0 : 0;
+            
+            const productData = {
+                name: document.getElementById('productName').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                category: document.getElementById('productCategory').value,
+                stock: parseInt(document.getElementById('productStock').value) || 0,
+                image: document.getElementById('productImage').value,
+                description: document.getElementById('productDescription').value,
+                discount: discount // Добавляем скидку
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/products/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(productData)
+                });
+                
+                if (response.ok) {
+                    showAlert('Товар оновлено!', 'success');
+                    resetProductForm();
+                    loadProducts();
+                } else {
+                    showAlert('Помилка оновлення товару', 'error');
+                }
+            } catch (error) {
+                console.error('Помилка оновлення товару:', error);
+                showAlert('Помилка оновлення товару', 'error');
+            }
+        }
+        
+        // Скинути форму товару до початкового стану
+        function resetProductForm() {
+            const form = document.getElementById('addProductForm');
+            form.reset();
+            
+            // Повернути оригінальний текст кнопки
+            const submitBtn = document.querySelector('#addProductForm .submit-btn');
+            submitBtn.innerHTML = '<i class="fas fa-plus"></i> Додати товар';
+            
+            // Видалити кнопку скасування, якщо вона є
+            const cancelBtn = document.getElementById('cancelEditBtn');
+            if (cancelBtn) {
+                cancelBtn.remove();
+            }
+            
+            // Повернути оригінальний обробник
+            form.removeEventListener('submit', (e) => handleUpdateProduct(e));
+            form.addEventListener('submit', handleAddProduct);
+        }
+
+        // Завантажити замовлення
+        async function loadOrders() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/orders`);
+                if (response.ok) {
+                    const orders = await response.json();
+                    displayOrders(orders);
+                }
+            } catch (error) {
+                console.error('Помилка завантаження замовлень:', error);
+            }
+        }
+
+        // Відобразити замовлення
+        function displayOrders(orders) {
+            const ordersList = document.getElementById('ordersList');
+            ordersList.innerHTML = '';
+
+            if (orders.length === 0) {
+                ordersList.innerHTML = '<p style="text-align: center; color: #ccc;">Замовлення не знайдено</p>';
+                return;
+            }
+
+            orders.forEach(order => {
+                const items = JSON.parse(order.items || '[]');
+                const itemsList = items.map(item => {
+                    // Проверяем, есть ли скидка на товар
+                    const hasDiscount = item.discount > 0;
+                    let itemText = `• ${item.name} x${item.quantity}`;
+                    
+                    // Добавляем информацию о цене с учетом скидки
+                    if (hasDiscount) {
+                        itemText += ` — <span class="original-price">${item.price} ₴</span> <span class="discounted-price">${parseFloat(item.finalPrice || item.price).toFixed(2)} ₴</span> <span class="discount-badge">-${item.discount}%</span>`;
+                    } else {
+                        itemText += ` — ${item.price} ₴`;
+                    }
+                    
+                    return itemText;
+                }).join('<br>');
+                
+                const orderCard = document.createElement('div');
+                orderCard.className = 'order-card';
+                orderCard.innerHTML = `
+                    <h4>
+                        Замовлення #${order.id}
+                        <span class="order-status status-${order.status}">${order.status}</span>
+                    </h4>
+                    <div class="order-info">
+                        <p><strong>Клієнт:</strong> ${order.customer_name}</p>
+                        <p><strong>Телефон:</strong> ${order.customer_phone}</p>
+                        <p><strong>Email:</strong> ${order.customer_email || 'Не вказано'}</p>
+                        <p><strong>Адреса:</strong> ${order.delivery_address || 'Не вказано'}</p>
+                        <p><strong>Сума:</strong> ${order.total_amount} ₴</p>
+                        <p><strong>Дата:</strong> ${new Date(order.created_at).toLocaleString()}</p>
+                    </div>
+                    <div class="order-items">
+                        <p><strong>Товари:</strong></p>
+                        ${itemsList || 'Немає товарів'}
+                    </div>
+                    <select class="status-select" onchange="updateOrderStatus(${order.id}, this.value)">
+                        <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Очікує</option>
+                        <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Обробляється</option>
+                        <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Завершено</option>
+                        <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Скасовано</option>
+                    </select>
+                `;
+                ordersList.appendChild(orderCard);
+            });
+        }
+
+        // Оновити статус замовлення
+        async function updateOrderStatus(orderId, status) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/orders/${orderId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status })
+                });
+
+                if (response.ok) {
+                    showAlert('Статус замовлення оновлено!', 'success');
+                    loadStats();
+                } else {
+                    showAlert('Помилка оновлення статусу', 'error');
+                }
+            } catch (error) {
+                console.error('Помилка оновлення статусу:', error);
+                showAlert('Помилка оновлення статусу', 'error');
+            }
+        }
+
+        // Відправити всі товари в Telegram
+        async function sendAllToTelegram() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/send-to-telegram`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showAlert(`Відправка ${result.count} товарів в Telegram розпочата!`, 'success');
+                } else {
+                    showAlert('Помилка відправки в Telegram', 'error');
+                }
+            } catch (error) {
+                console.error('Помилка відправки в Telegram:', error);
+                showAlert('Помилка відправки в Telegram', 'error');
+            }
+        }
+
+        // Завантажити категорії
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/categories`);
+                if (response.ok) {
+                    const categories = await response.json();
+                    displayCategories(categories);
+                } else {
+                    showAlert('Помилка завантаження категорій', 'error');
+                }
+            } catch (error) {
+                console.error('Помилка завантаження категорій:', error);
+                showAlert('Помилка завантаження категорій', 'error');
+            }
+        }
+
+        // Відобразити категорії
+        function displayCategories(categories) {
+            const categoriesGrid = document.getElementById('categoriesGrid');
+            categoriesGrid.innerHTML = '';
+
+            if (categories.length === 0) {
+                categoriesGrid.innerHTML = '<p class="no-items">Немає категорій</p>';
+                return;
+            }
+
+            categories.forEach(category => {
+                const categoryCard = document.createElement('div');
+                categoryCard.className = 'category-card';
+                categoryCard.id = `category-${category.id}`;
+                categoryCard.innerHTML = `
+                    <div class="category-name">${category.name}</div>
+                    <div class="category-actions">
+                        <button class="edit-category-btn" onclick="showEditCategoryForm(${category.id}, '${category.name}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="delete-category-btn" onclick="deleteCategory(${category.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="edit-category-form" id="edit-form-${category.id}">
+                        <input type="text" id="edit-category-name-${category.id}" value="${category.name}" class="form-input" placeholder="Назва категорії">
+                        <button class="btn btn-primary" onclick="updateCategory(${category.id})">Зберегти</button>
+                    </div>
+                `;
+                categoriesGrid.appendChild(categoryCard);
+            });
+        }
+
+        // Показати форму редагування категорії
+        function showEditCategoryForm(categoryId, categoryName) {
+            const editForm = document.getElementById(`edit-form-${categoryId}`);
+            editForm.classList.toggle('active');
+            document.getElementById(`edit-category-name-${categoryId}`).value = categoryName;
+        }
+
+        // Додати нову категорію
+        async function addCategory() {
+            const categoryName = document.getElementById('newCategoryName').value.trim();
+            
+            if (!categoryName) {
+                showAlert('Введіть назву категорії', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/categories`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name: categoryName })
+                });
+
+                if (response.ok) {
+                    showAlert('Категорія додана!', 'success');
+                    document.getElementById('newCategoryName').value = '';
+                    loadCategories();
+                } else {
+                    const errorData = await response.json();
+                    showAlert(errorData.error || 'Помилка додавання категорії', 'error');
+                }
+            } catch (error) {
+                console.error('Помилка додавання категорії:', error);
+                showAlert('Помилка додавання категорії', 'error');
+            }
+        }
+
+        // Оновити категорію
+        async function updateCategory(categoryId) {
+            const categoryName = document.getElementById(`edit-category-name-${categoryId}`).value.trim();
+            
+            if (!categoryName) {
+                showAlert('Введіть назву категорії', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/categories/${categoryId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name: categoryName })
+                });
+
+                if (response.ok) {
+                    showAlert('Категорія оновлена!', 'success');
+                    document.getElementById(`edit-form-${categoryId}`).classList.remove('active');
+                    loadCategories();
+                } else {
+                    const errorData = await response.json();
+                    showAlert(errorData.error || 'Помилка оновлення категорії', 'error');
+                }
+            } catch (error) {
+                console.error('Помилка оновлення категорії:', error);
+                showAlert('Помилка оновлення категорії', 'error');
+            }
+        }
+
+        // Видалити категорію
+        async function deleteCategory(categoryId) {
+            if (!confirm('Ви впевнені, що хочете видалити цю категорію?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/categories/${categoryId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showAlert('Категорія видалена!', 'success');
+                    loadCategories();
+                } else {
+                    const errorData = await response.json();
+                    showAlert(errorData.error || 'Помилка видалення категорії', 'error');
+                }
+            } catch (error) {
+                console.error('Помилка видалення категорії:', error);
+                showAlert('Помилка видалення категорії', 'error');
+            }
+        }
+
+        // Завантажити товари
+        async function loadProducts() {
+            try {
+                // Завантажити категорії для випадаючого списку
+                await loadCategoriesForSelect();
+                
+                const response = await fetch(`${API_BASE_URL}/products`);
+                if (response.ok) {
+                    const products = await response.json();
+                    displayProducts(products);
+                } else {
+                    showAlert('Помилка завантаження товарів', 'error');
+                }
+            } catch (error) {
+                console.error('Помилка завантаження товарів:', error);
+                showAlert('Помилка завантаження товарів', 'error');
+            }
+        }
+        
+        // Завантажити категорії для випадаючого списку
+        async function loadCategoriesForSelect() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/categories`);
+                if (response.ok) {
+                    const categories = await response.json();
+                    const categorySelect = document.getElementById('productCategory');
+                    
+                    // Зберегти поточне вибране значення
+                    const currentValue = categorySelect.value;
+                    
+                    // Очистити список, залишивши тільки перший пункт
+                    categorySelect.innerHTML = '<option value="">Виберіть категорію</option>';
+                    
+                    // Додати категорії
+                    categories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category.name;
+                        option.textContent = category.name;
+                        categorySelect.appendChild(option);
+                    });
+                    
+                    // Відновити вибране значення, якщо воно існує
+                    if (currentValue) {
+                        categorySelect.value = currentValue;
+                    }
+                }
+            } catch (error) {
+                console.error('Помилка завантаження категорій для списку:', error);
+            }
+        }
+
+        // Завантажити замовлення
+        async function loadOrders() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/orders`);
+                if (response.ok) {
+                    const orders = await response.json();
+                    displayOrders(orders);
+                } else {
+                    showAlert('Помилка завантаження замовлень', 'error');
+                }
+            } catch (error) {
+                console.error('Помилка завантаження замовлень:', error);
+                showAlert('Помилка завантаження замовлень', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
