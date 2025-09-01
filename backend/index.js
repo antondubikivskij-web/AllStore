@@ -11,6 +11,8 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors());
 app.use(express.json());
+// Статические файлы (для admin.html)
+app.use(express.static(__dirname));
 
 // Telegram Bot Setup
 let bot = null;
@@ -699,6 +701,11 @@ app.get('/api', (req, res) => {
 
 // Админ-панель
 app.get('/admin', (req, res) => {
+  res.sendFile(__dirname + '/admin.html');
+});
+
+// Админ-панель (альтернативный путь)
+app.get('/admin.html', (req, res) => {
   res.sendFile(__dirname + '/admin.html');
 });
 
