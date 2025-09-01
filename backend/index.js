@@ -163,6 +163,28 @@ function initDatabase() {
   db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('maintenance_message', 'Сайт на оновленні. Скоро повернемося!')`);
   db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('show_discounts', 'true')`);
 
+  // Проверяем структуру таблицы products
+  db.all('PRAGMA table_info(products)', (err, columns) => {
+    if (err) {
+      console.error('Ошибка проверки структуры таблицы:', err);
+    } else {
+      console.log('Структура таблицы products:', columns.map(col => col.name));
+      
+      // Проверяем наличие поля specifications
+      const hasSpecifications = columns.some(col => col.name === 'specifications');
+      if (!hasSpecifications) {
+        console.log('Поле specifications отсутствует, добавляем...');
+        db.run('ALTER TABLE products ADD COLUMN specifications TEXT DEFAULT ""', (err) => {
+          if (err) {
+            console.error('Ошибка добавления поля specifications:', err);
+          } else {
+            console.log('Поле specifications успешно добавлено');
+          }
+        });
+      }
+    }
+  });
+
   // Перевіряємо чи є товари в базі даних
   db.get('SELECT COUNT(*) as count FROM products', (err, row) => {
     if (err) {
@@ -242,9 +264,12 @@ app.get('/api/products/:id', (req, res) => {
 app.post('/api/admin/products', (req, res) => {
   const { name, price, description, category, stock, image, discount, specifications } = req.body;
   
+  console.log('Добавление товара:', { name, price, description, category, stock, image, discount, specifications });
+  
   db.run(`INSERT INTO products (name, price, description, category, stock, image, discount, specifications) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     [name, price, description, category, stock, image, discount || 0, specifications || ''], function(err) {
     if (err) {
+      console.error('Ошибка добавления товара:', err);
       res.status(500).json({ error: err.message });
       return;
     }
