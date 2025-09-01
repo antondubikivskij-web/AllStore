@@ -1443,9 +1443,9 @@ footer p {
   .search-filter-container {
     flex-direction: column;
     gap: 15px;
-    margin: 15px 5px;
-    padding: 15px 10px;
-    width: calc(100% - 20px);
+    margin: 10px 3px;
+    padding: 12px 8px;
+    width: calc(100% - 16px);
     box-sizing: border-box;
   }
   
@@ -1522,9 +1522,9 @@ footer p {
   }
   
   .search-filter-container {
-    margin: 10px 5px;
-    padding: 10px 8px;
-    width: calc(100% - 16px);
+    margin: 8px 3px;
+    padding: 8px 6px;
+    width: calc(100% - 12px);
     box-sizing: border-box;
   }
   
