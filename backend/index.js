@@ -891,8 +891,8 @@ const keepAlive = () => {
   });
 };
 
-// Получаем интервал имитации активности из переменных окружения или используем значение по умолчанию (10 минут)
-const keepAliveMinutes = parseInt(process.env.KEEP_ALIVE_INTERVAL) || 10;
+// Получаем интервал имитации активности из переменных окружения или используем значение по умолчанию (2 минуты)
+const keepAliveMinutes = parseInt(process.env.KEEP_ALIVE_INTERVAL) || 2;
 const keepAliveInterval = keepAliveMinutes * 60 * 1000; // Конвертируем минуты в миллисекунды
 
 // Запускаем имитацию активности с заданным интервалом
