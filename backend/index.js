@@ -185,6 +185,15 @@ function initDatabase() {
     }
   });
 
+  // Добавляем поле specifications если его нет
+  db.run(`ALTER TABLE products ADD COLUMN specifications TEXT DEFAULT ''`, (err) => {
+    if (err && !err.message.includes('duplicate column name')) {
+      console.error('Ошибка добавления поля specifications:', err);
+    } else {
+      console.log('Поле specifications добавлено или уже существует');
+    }
+  });
+
   // Добавляем админа по умолчанию
   const adminPassword = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'admin123', 10);
   db.run(`INSERT OR IGNORE INTO admins (username, password) VALUES (?, ?)`,
