@@ -37,7 +37,7 @@ function App() {
     text: ''
   })
 
-  const API_BASE_URL = 'http://localhost:3001/api'
+  const API_BASE_URL = 'https://allstore-on9z.onrender.com/api'
 
   // Функция загрузки товаров
   const fetchProducts = async () => {
