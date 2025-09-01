@@ -163,6 +163,12 @@ function initDatabase() {
   db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('maintenance_message', 'Сайт на оновленні. Скоро повернемося!')`);
   db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('show_discounts', 'true')`);
 
+  // Добавляем базовые категории
+  const defaultCategories = ['Одяг', 'Електроніка', 'Дом і сад', 'Краса і здоров’я', 'Спорт'];
+  defaultCategories.forEach(category => {
+    db.run(`INSERT OR IGNORE INTO categories (name) VALUES (?)`, [category]);
+  });
+
   // Проверяем структуру таблицы products
   db.all('PRAGMA table_info(products)', (err, columns) => {
     if (err) {
@@ -564,14 +570,14 @@ app.get('/api/search', (req, res) => {
 
 // Получить категории
 app.get('/api/categories', (req, res) => {
-  db.all('SELECT DISTINCT category FROM products WHERE category IS NOT NULL AND category != "" ORDER BY category', (err, rows) => {
+  db.all('SELECT * FROM categories ORDER BY name', (err, rows) => {
     if (err) {
       console.error('Ошибка получения категорий:', err);
       res.status(500).json({ error: err.message });
       return;
     }
-    const categories = rows.map(row => row.category).filter(cat => cat && cat.trim());
-    console.log('Найденные категории:', categories);
+    const categories = rows.map(row => row.name);
+    console.log('Категории из таблицы:', categories);
     res.json(categories);
   });
 });
