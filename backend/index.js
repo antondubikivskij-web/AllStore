@@ -127,6 +127,7 @@ function initDatabase() {
     category TEXT,
     stock INTEGER DEFAULT 0,
     discount REAL DEFAULT 0,
+    specifications TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
 
@@ -248,10 +249,10 @@ app.get('/api/products/:id', (req, res) => {
 
 // Добавить товар (админ)
 app.post('/api/admin/products', (req, res) => {
-  const { name, price, description, category, stock, image, discount } = req.body;
+  const { name, price, description, category, stock, image, discount, specifications } = req.body;
   
-  db.run(`INSERT INTO products (name, price, description, category, stock, image, discount) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [name, price, description, category, stock, image, discount || 0], function(err) {
+  db.run(`INSERT INTO products (name, price, description, category, stock, image, discount, specifications) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [name, price, description, category, stock, image, discount || 0, specifications || ''], function(err) {
     if (err) {
       res.status(500).json({ error: err.message });
       return;
@@ -278,10 +279,10 @@ app.post('/api/admin/products', (req, res) => {
 
 // Обновить товар (админ)
 app.put('/api/admin/products/:id', (req, res) => {
-  const { name, price, description, category, stock, image, discount } = req.body;
+  const { name, price, description, category, stock, image, discount, specifications } = req.body;
   
-  db.run(`UPDATE products SET name = ?, price = ?, description = ?, category = ?, stock = ?, image = ?, discount = ? WHERE id = ?`,
-    [name, price, description, category, stock, image, discount || 0, req.params.id], function(err) {
+  db.run(`UPDATE products SET name = ?, price = ?, description = ?, category = ?, stock = ?, image = ?, discount = ?, specifications = ? WHERE id = ?`,
+    [name, price, description, category, stock, image, discount || 0, specifications || '', req.params.id], function(err) {
     if (err) {
       res.status(500).json({ error: err.message });
       return;
