@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-import AdminPanel from './components/AdminPanel'
-
 // Version: 3.0 - API Integration
 function App() {
   const [cart, setCart] = useState(() => {
@@ -30,14 +28,14 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [error, setError] = useState(null)
   const [productsLoading, setProductsLoading] = useState(true)
-  const [showAdminPanel, setShowAdminPanel] = useState(false)
+
   const [reviews, setReviews] = useState([])
   const [newReview, setNewReview] = useState({
     name: '',
     text: ''
   })
 
-  const API_BASE_URL = 'http://localhost:3001/api'
+  const API_BASE_URL = 'https://allstore-on9z.onrender.com/api'
 
   // Функция загрузки товаров
   const fetchProducts = async () => {
@@ -477,9 +475,6 @@ function App() {
             <a href="#contact" onClick={(e) => { e.preventDefault(); scrollToSection('contact'); }}>Контакти</a>
           </nav>
           <div className="header-actions">
-            <div className="admin-icon" onClick={() => setShowAdminPanel(true)}>
-              <i className="fas fa-cog"></i>
-            </div>
             <div className="cart-icon" onClick={openCart}>
               <i className="fas fa-shopping-cart"></i>
               {getCartItemsCount() > 0 && <span className="cart-count">{getCartItemsCount()}</span>}
@@ -722,6 +717,16 @@ function App() {
                   <span>{selectedProduct.rating}</span>
                 </div>
                 <p className="modal-description">{selectedProduct.description}</p>
+                {selectedProduct.specifications && (
+                  <div className="modal-specifications">
+                    <h4>Характеристики:</h4>
+                    <div className="specifications-list">
+                      {selectedProduct.specifications.split('\n').map((spec, index) => (
+                        spec.trim() && <div key={index} className="spec-item">{spec}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="modal-price">
                   <span>{selectedProduct.price} ₴</span>
                 </div>
@@ -831,10 +836,7 @@ function App() {
         <div className="progress-fill"></div>
       </div>
 
-      {/* Admin Panel */}
-      {showAdminPanel && (
-        <AdminPanel onClose={() => setShowAdminPanel(false)} onProductUpdate={fetchProducts} />
-      )}
+
 
       {/* Checkout Modal */}
       {showCheckout && (
