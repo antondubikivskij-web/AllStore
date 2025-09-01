@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-import AdminPanel from './components/AdminPanel'
-
 // Version: 3.0 - API Integration
 function App() {
   const [cart, setCart] = useState(() => {
@@ -30,7 +28,7 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [error, setError] = useState(null)
   const [productsLoading, setProductsLoading] = useState(true)
-  const [showAdminPanel, setShowAdminPanel] = useState(false)
+
   const [reviews, setReviews] = useState([])
   const [newReview, setNewReview] = useState({
     name: '',
@@ -477,9 +475,6 @@ function App() {
             <a href="#contact" onClick={(e) => { e.preventDefault(); scrollToSection('contact'); }}>Контакти</a>
           </nav>
           <div className="header-actions">
-            <div className="admin-icon" onClick={() => setShowAdminPanel(true)}>
-              <i className="fas fa-cog"></i>
-            </div>
             <div className="cart-icon" onClick={openCart}>
               <i className="fas fa-shopping-cart"></i>
               {getCartItemsCount() > 0 && <span className="cart-count">{getCartItemsCount()}</span>}
@@ -831,10 +826,7 @@ function App() {
         <div className="progress-fill"></div>
       </div>
 
-      {/* Admin Panel */}
-      {showAdminPanel && (
-        <AdminPanel onClose={() => setShowAdminPanel(false)} onProductUpdate={fetchProducts} />
-      )}
+
 
       {/* Checkout Modal */}
       {showCheckout && (
