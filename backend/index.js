@@ -20,6 +20,26 @@ if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_BOT_TOKEN !== 'your_t
   bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false });
 }
 
+// Telegram notification function for orders with photo
+const sendTelegramOrderWithPhoto = async (message, imageUrl, chatId) => {
+  if (bot && chatId) {
+    try {
+      await bot.sendPhoto(chatId, imageUrl, {
+        caption: message,
+        parse_mode: 'HTML'
+      });
+    } catch (error) {
+      console.error('Telegram order photo error:', error);
+      // Если не удалось отправить фото, отправляем только текст
+      try {
+        await bot.sendMessage(chatId, message, { parse_mode: 'HTML' });
+      } catch (textError) {
+        console.error('Telegram text message error:', textError);
+      }
+    }
+  }
+};
+
 // Telegram notification function
 const sendTelegramNotification = async (message, product = null, customChatId = null) => {
   if (bot) {
@@ -83,6 +103,7 @@ const db = new sqlite3.Database('./store.db', (err) => {
       description TEXT,
       image TEXT,
       category TEXT,
+      subcategory TEXT DEFAULT '',
       stock INTEGER DEFAULT 0,
       discount REAL DEFAULT 0,
       specifications TEXT DEFAULT '',
@@ -164,7 +185,23 @@ function initDatabase() {
   db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('show_discounts', 'true')`);
 
   // Добавляем базовые категории
-  const defaultCategories = ['Одяг', 'Електроніка', 'Дом і сад', 'Краса і здоров’я', 'Спорт'];
+  const defaultCategories = [
+    'Одяг',
+    'Взуття',
+    'Електроніка',
+    'Дом і сад',
+    'Краса і здоров’я',
+    'Спорт і відпочинок',
+    'Автотовари',
+    'Дитячі товари',
+    'Книги і канцтовари',
+    'Продукти харчування',
+    'Меблі',
+    'Інструменти',
+    'Товари для тварин',
+    'Музика і фільми',
+    'Подарунки'
+  ];
   defaultCategories.forEach(category => {
     db.run(`INSERT OR IGNORE INTO categories (name) VALUES (?)`, [category]);
   });
@@ -185,6 +222,32 @@ function initDatabase() {
             console.error('Ошибка добавления поля specifications:', err);
           } else {
             console.log('Поле specifications успешно добавлено');
+          }
+        });
+      }
+      
+      // Проверяем наличие поля subcategory
+      const hasSubcategory = columns.some(col => col.name === 'subcategory');
+      if (!hasSubcategory) {
+        console.log('Поле subcategory отсутствует, добавляем...');
+        db.run('ALTER TABLE products ADD COLUMN subcategory TEXT DEFAULT ""', (err) => {
+          if (err) {
+            console.error('Ошибка добавления поля subcategory:', err);
+          } else {
+            console.log('Поле subcategory успешно добавлено');
+          }
+        });
+      }
+      
+      // Проверяем наличие поля images для нескольких фото
+      const hasImages = columns.some(col => col.name === 'images');
+      if (!hasImages) {
+        console.log('Поле images отсутствует, добавляем...');
+        db.run('ALTER TABLE products ADD COLUMN images TEXT DEFAULT ""', (err) => {
+          if (err) {
+            console.error('Ошибка добавления поля images:', err);
+          } else {
+            console.log('Поле images успешно добавлено');
           }
         });
       }
@@ -268,12 +331,15 @@ app.get('/api/products/:id', (req, res) => {
 
 // Добавить товар (админ)
 app.post('/api/admin/products', (req, res) => {
-  const { name, price, description, category, stock, image, discount, specifications } = req.body;
+  const { name, price, description, category, subcategory, stock, image, images, discount, specifications } = req.body;
   
-  console.log('Добавление товара:', { name, price, description, category, stock, image, discount, specifications });
+  // Обрабатываем множественные фото
+  const imageUrls = images ? (Array.isArray(images) ? images.join(',') : images) : (image || '');
   
-  db.run(`INSERT INTO products (name, price, description, category, stock, image, discount, specifications) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [name, price, description, category, stock, image, discount || 0, specifications || ''], function(err) {
+  console.log('Добавление товара:', { name, price, description, category, subcategory, stock, image, images: imageUrls, discount, specifications });
+  
+  db.run(`INSERT INTO products (name, price, description, category, subcategory, stock, image, images, discount, specifications) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [name, price, description, category, subcategory || '', stock, image || '', imageUrls, discount || 0, specifications || ''], function(err) {
     if (err) {
       console.error('Ошибка добавления товара:', err);
       res.status(500).json({ error: err.message });
@@ -301,10 +367,13 @@ app.post('/api/admin/products', (req, res) => {
 
 // Обновить товар (админ)
 app.put('/api/admin/products/:id', (req, res) => {
-  const { name, price, description, category, stock, image, discount, specifications } = req.body;
+  const { name, price, description, category, subcategory, stock, image, images, discount, specifications } = req.body;
   
-  db.run(`UPDATE products SET name = ?, price = ?, description = ?, category = ?, stock = ?, image = ?, discount = ?, specifications = ? WHERE id = ?`,
-    [name, price, description, category, stock, image, discount || 0, specifications || '', req.params.id], function(err) {
+  // Обрабатываем множественные фото
+  const imageUrls = images ? (Array.isArray(images) ? images.join(',') : images) : (image || '');
+  
+  db.run(`UPDATE products SET name = ?, price = ?, description = ?, category = ?, subcategory = ?, stock = ?, image = ?, images = ?, discount = ?, specifications = ? WHERE id = ?`,
+    [name, price, description, category, subcategory || '', stock, image || '', imageUrls, discount || 0, specifications || '', req.params.id], function(err) {
     if (err) {
       res.status(500).json({ error: err.message });
       return;
@@ -406,11 +475,14 @@ app.post('/api/orders', (req, res) => {
       
       return itemText;
     }).join('\n');
-    sendTelegramNotification(
-      `🛒 <b>Нове замовлення!</b>\n\n🆔 Замовлення #${orderId}\n👤 ${customer_name}\n📞 ${customer_phone}\n🏠 <b>Адреса:</b> ${delivery_address || '—'}\n💰 Сума: ${total_amount} ₴\n\n📦 Товари:\n${itemsList}`,
-      null,
-      process.env.TELEGRAM_ORDERS_CHANNEL_ID
-    );
+    // Отправляем уведомление о заказе с фото первого товара если оно есть
+    const orderMessage = `🛒 <b>Нове замовлення!</b>\n\n🆔 Замовлення #${orderId}\n👤 ${customer_name}\n📞 ${customer_phone}\n🏠 <b>Адреса:</b> ${delivery_address || '—'}\n💰 Сума: ${total_amount} ₴\n\n📦 Товари:\n${itemsList}`;
+    
+    if (items.length > 0 && items[0].image) {
+      sendTelegramOrderWithPhoto(orderMessage, items[0].image, process.env.TELEGRAM_ORDERS_CHANNEL_ID);
+    } else {
+      sendTelegramNotification(orderMessage, null, process.env.TELEGRAM_ORDERS_CHANNEL_ID);
+    }
     
     res.json({ 
       id: orderId, 
@@ -917,8 +989,8 @@ const keepAlive = () => {
   });
 };
 
-// Получаем интервал имитации активности из переменных окружения или используем значение по умолчанию (2 минуты)
-const keepAliveMinutes = parseInt(process.env.KEEP_ALIVE_INTERVAL) || 2;
+// Получаем интервал имитации активности из переменных окружения или используем значение по умолчанию (1 минута)
+const keepAliveMinutes = parseInt(process.env.KEEP_ALIVE_INTERVAL) || 1;
 const keepAliveInterval = keepAliveMinutes * 60 * 1000; // Конвертируем минуты в миллисекунды
 
 // Запускаем имитацию активности с заданным интервалом
@@ -926,6 +998,31 @@ const keepAliveTimer = setInterval(keepAlive, keepAliveInterval);
 
 // Запускаем имитацию сразу при старте сервера
 setTimeout(keepAlive, 5000); // Запускаем через 5 секунд после старта сервера
+
+// Дополнительный быстрый ping каждые 30 секунд для максимальной активности
+const quickPing = () => {
+  const http = require('http');
+  const options = {
+    hostname: 'localhost',
+    port: PORT,
+    path: '/api/ping',
+    method: 'GET'
+  };
+  
+  const req = http.request(options, (res) => {
+    console.log(`[${new Date().toLocaleTimeString()}] Быстрый ping: активен`);
+  });
+  
+  req.on('error', (error) => {
+    console.error('Ошибка быстрого ping:', error.message);
+  });
+  
+  req.end();
+};
+
+// Запускаем быстрый ping каждые 30 секунд
+setInterval(quickPing, 30 * 1000);
+console.log('Быстрый ping запущен (каждые 30 секунд)');
 
 // Запуск сервера
 app.listen(PORT, () => {
