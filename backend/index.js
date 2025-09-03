@@ -1062,25 +1062,38 @@ const quickPing = () => {
   req.end();
 };
 
-// Внешний пинг к production URL для предотвращения засыпания Render
+// Множественные внешние пинги к production URL
 const externalKeepAlive = () => {
   const https = require('https');
-  const productionUrl = 'https://allstore-on9z.onrender.com/api/ping';
+  const productionUrls = [
+    'https://allstore-on9z.onrender.com/api/ping',
+    'https://allstore-on9z.onrender.com/api/products',
+    'https://allstore-on9z.onrender.com/api/categories',
+    'https://allstore-on9z.onrender.com/api/site-status'
+  ];
   
-  https.get(productionUrl, (res) => {
-    console.log(`[Внешний ping] Production сервер активен - статус ${res.statusCode}`);
-  }).on('error', (error) => {
-    console.log(`[Внешний ping] Ошибка: ${error.message}`);
-  });
+  // Имитируем 2-3 внешних пользователя
+  const externalUsers = Math.floor(Math.random() * 2) + 2; // 2-3 пользователя
+  
+  for (let i = 0; i < externalUsers; i++) {
+    setTimeout(() => {
+      const randomUrl = productionUrls[Math.floor(Math.random() * productionUrls.length)];
+      
+      https.get(randomUrl, (res) => {
+        console.log(`[Внешний пользователь ${i+1}] ${randomUrl} - статус ${res.statusCode}`);
+      }).on('error', () => {});
+      
+    }, i * 500); // Задержка между внешними запросами
+  }
 };
 
 // Запускаем имитацию множественных пользователей каждую секунду
 setInterval(simulateMultipleUsers, 1000);
 console.log('Имитация 2-3 пользователей запущена (каждую секунду)');
 
-// Запускаем внешний ping к production серверу каждые 30 секунд
-setInterval(externalKeepAlive, 30 * 1000);
-console.log('Внешний ping к production запущен (каждые 30 секунд)');
+// Запускаем множественные внешние ping к production серверу каждые 15 секунд
+setInterval(externalKeepAlive, 15 * 1000);
+console.log('Множественные внешние ping к production запущены (2-3 пользователя каждые 15 секунд)');
 
 // Запускаем быстрый ping каждые 30 секунд
 setInterval(quickPing, 30 * 1000);
