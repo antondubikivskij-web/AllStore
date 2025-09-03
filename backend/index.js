@@ -1062,9 +1062,25 @@ const quickPing = () => {
   req.end();
 };
 
+// Внешний пинг к production URL для предотвращения засыпания Render
+const externalKeepAlive = () => {
+  const https = require('https');
+  const productionUrl = 'https://allstore-on9z.onrender.com/api/ping';
+  
+  https.get(productionUrl, (res) => {
+    console.log(`[Внешний ping] Production сервер активен - статус ${res.statusCode}`);
+  }).on('error', (error) => {
+    console.log(`[Внешний ping] Ошибка: ${error.message}`);
+  });
+};
+
 // Запускаем имитацию множественных пользователей каждую секунду
-setInterval(simulateMultipleUsers, 1000); // Каждую секунду
+setInterval(simulateMultipleUsers, 1000);
 console.log('Имитация 2-3 пользователей запущена (каждую секунду)');
+
+// Запускаем внешний ping к production серверу каждые 30 секунд
+setInterval(externalKeepAlive, 30 * 1000);
+console.log('Внешний ping к production запущен (каждые 30 секунд)');
 
 // Запускаем быстрый ping каждые 30 секунд
 setInterval(quickPing, 30 * 1000);
