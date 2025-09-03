@@ -338,6 +338,11 @@ app.post('/api/admin/products', (req, res) => {
   
   console.log('Добавление товара:', { name, price, description, category, subcategory, stock, image, images: imageUrls, discount, specifications });
   
+  // Автоматически добавляем категорию если она новая
+  if (category && category.trim()) {
+    db.run(`INSERT OR IGNORE INTO categories (name) VALUES (?)`, [category.trim()]);
+  }
+  
   db.run(`INSERT INTO products (name, price, description, category, subcategory, stock, image, images, discount, specifications) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [name, price, description, category, subcategory || '', stock, image || '', imageUrls, discount || 0, specifications || ''], function(err) {
     if (err) {
@@ -999,7 +1004,44 @@ const keepAliveTimer = setInterval(keepAlive, keepAliveInterval);
 // Запускаем имитацию сразу при старте сервера
 setTimeout(keepAlive, 5000); // Запускаем через 5 секунд после старта сервера
 
-// Дополнительный быстрый ping каждые 30 секунд для максимальной активности
+// Имитация множественных пользователей каждую секунду
+const simulateMultipleUsers = () => {
+  const http = require('http');
+  const userActions = [
+    '/api/ping',
+    '/api/products', 
+    '/api/categories',
+    '/api/site-status'
+  ];
+  
+  // Имитируем 2-3 пользователей
+  const usersCount = Math.floor(Math.random() * 2) + 2; // 2-3 пользователя
+  
+  for (let i = 0; i < usersCount; i++) {
+    setTimeout(() => {
+      const randomAction = userActions[Math.floor(Math.random() * userActions.length)];
+      
+      const options = {
+        hostname: 'localhost',
+        port: PORT,
+        path: randomAction,
+        method: 'GET'
+      };
+      
+      const req = http.request(options, (res) => {
+        console.log(`[Пользователь ${i+1}] ${randomAction} - активен`);
+      });
+      
+      req.on('error', (error) => {
+        // Молчаливо игнорируем ошибки
+      });
+      
+      req.end();
+    }, i * 200); // Задержка между пользователями
+  }
+};
+
+// Дополнительный быстрый ping каждые 30 секунд
 const quickPing = () => {
   const http = require('http');
   const options = {
@@ -1014,11 +1056,15 @@ const quickPing = () => {
   });
   
   req.on('error', (error) => {
-    console.error('Ошибка быстрого ping:', error.message);
+    // Молчаливо игнорируем ошибки
   });
   
   req.end();
 };
+
+// Запускаем имитацию множественных пользователей каждую секунду
+setInterval(simulateMultipleUsers, 1000); // Каждую секунду
+console.log('Имитация 2-3 пользователей запущена (каждую секунду)');
 
 // Запускаем быстрый ping каждые 30 секунд
 setInterval(quickPing, 30 * 1000);
