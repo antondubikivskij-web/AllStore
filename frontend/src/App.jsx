@@ -35,7 +35,7 @@ function App() {
     text: ''
   })
 
-  const API_BASE_URL = 'https://allstore-on9z.onrender.com/api'
+  const API_BASE_URL = 'http://localhost:3001/api'
 
   // Функция загрузки товаров
   const fetchProducts = async () => {
@@ -517,18 +517,20 @@ function App() {
               <i className="fas fa-search search-icon"></i>
             </div>
             
-            <div className="category-filter">
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="category-select"
-              >
-                <option value="">Всі категорії</option>
-                {categories.map(category => (
-                  <option key={category} value={category}>{category}</option>
-                ))}
-              </select>
-            </div>
+            {categories.length > 0 && (
+              <div className="category-filter">
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="category-select"
+                >
+                  <option value="">Всі категорії</option>
+                  {categories.map(category => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
           
           <div className="product-grid">
@@ -717,6 +719,16 @@ function App() {
                   <span>{selectedProduct.rating}</span>
                 </div>
                 <p className="modal-description">{selectedProduct.description}</p>
+                {selectedProduct.specifications && (
+                  <div className="modal-specifications">
+                    <h4>Характеристики:</h4>
+                    <div className="specifications-list">
+                      {selectedProduct.specifications.split('\n').map((spec, index) => (
+                        spec.trim() && <div key={index} className="spec-item">{spec}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="modal-price">
                   <span>{selectedProduct.price} ₴</span>
                 </div>
