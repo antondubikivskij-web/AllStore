@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import './AdminPanel.css'
 
+
 function AdminPanel({ onClose, onProductUpdate }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [username, setUsername] = useState('')
@@ -18,6 +19,14 @@ function AdminPanel({ onClose, onProductUpdate }) {
     image: ''
   })
   const [editingProduct, setEditingProduct] = useState(null)
+  // Категорії та підкатегорії
+  const [categories, setCategories] = useState([])
+  const [subcategories, setSubcategories] = useState([])
+  const [selectedCategoryId, setSelectedCategoryId] = useState('')
+  const [newCategory, setNewCategory] = useState('')
+  const [editingCategory, setEditingCategory] = useState(null)
+  const [newSubcategory, setNewSubcategory] = useState('')
+  const [editingSubcategory, setEditingSubcategory] = useState(null)
 
   const API_BASE_URL = 'http://localhost:3001/api'
 
@@ -26,8 +35,118 @@ function AdminPanel({ onClose, onProductUpdate }) {
       fetchStats()
       fetchProducts()
       fetchOrders()
+      fetchCategories()
     }
   }, [isLoggedIn])
+
+  useEffect(() => {
+    if (selectedCategoryId) {
+      fetchSubcategories(selectedCategoryId)
+    } else {
+      setSubcategories([])
+    }
+  }, [selectedCategoryId])
+  // Категорії
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch('http://localhost:3001/api/admin/categories')
+      if (res.ok) {
+        const data = await res.json()
+        setCategories(data)
+      }
+    } catch (e) { console.error('Помилка завантаження категорій', e) }
+  }
+
+  const handleAddCategory = async (e) => {
+    e.preventDefault()
+    if (!newCategory.trim()) return
+    try {
+      const res = await fetch('http://localhost:3001/api/admin/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newCategory })
+      })
+      if (res.ok) {
+        setNewCategory('')
+        fetchCategories()
+      }
+    } catch (e) { alert('Помилка додавання категорії') }
+  }
+
+  const handleEditCategory = async (e) => {
+    e.preventDefault()
+    if (!editingCategory?.name.trim()) return
+    try {
+      const res = await fetch(`http://localhost:3001/api/admin/categories/${editingCategory.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editingCategory.name })
+      })
+      if (res.ok) {
+        setEditingCategory(null)
+        fetchCategories()
+      }
+    } catch (e) { alert('Помилка редагування категорії') }
+  }
+
+  const handleDeleteCategory = async (id) => {
+    if (!window.confirm('Видалити категорію?')) return
+    try {
+      const res = await fetch(`http://localhost:3001/api/admin/categories/${id}`, { method: 'DELETE' })
+      if (res.ok) fetchCategories()
+    } catch (e) { alert('Помилка видалення категорії') }
+  }
+
+  // Підкатегорії
+  const fetchSubcategories = async (categoryId) => {
+    try {
+      const res = await fetch(`http://localhost:3001/api/subcategories?category_id=${categoryId}`)
+      if (res.ok) {
+        const data = await res.json()
+        setSubcategories(data)
+      }
+    } catch (e) { console.error('Помилка завантаження підкатегорій', e) }
+  }
+
+  const handleAddSubcategory = async (e) => {
+    e.preventDefault()
+    if (!newSubcategory.trim() || !selectedCategoryId) return
+    try {
+      const res = await fetch('http://localhost:3001/api/admin/subcategories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newSubcategory, category_id: selectedCategoryId })
+      })
+      if (res.ok) {
+        setNewSubcategory('')
+        fetchSubcategories(selectedCategoryId)
+      }
+    } catch (e) { alert('Помилка додавання підкатегорії') }
+  }
+
+  const handleEditSubcategory = async (e) => {
+    e.preventDefault()
+    if (!editingSubcategory?.name.trim() || !selectedCategoryId) return
+    try {
+      const res = await fetch(`http://localhost:3001/api/admin/subcategories/${editingSubcategory.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editingSubcategory.name, category_id: selectedCategoryId })
+      })
+      if (res.ok) {
+        setEditingSubcategory(null)
+        fetchSubcategories(selectedCategoryId)
+      }
+    } catch (e) { alert('Помилка редагування підкатегорії') }
+  }
+
+  const handleDeleteSubcategory = async (id) => {
+    if (!window.confirm('Видалити підкатегорію?')) return
+    try {
+      const res = await fetch(`http://localhost:3001/api/admin/subcategories/${id}`, { method: 'DELETE' })
+      if (res.ok) fetchSubcategories(selectedCategoryId)
+    } catch (e) { alert('Помилка видалення підкатегорії') }
+  }
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -240,6 +359,92 @@ function AdminPanel({ onClose, onProductUpdate }) {
             </form>
           </div>
         </div>
+        <div className="admin-tabs">
+          <button 
+            className={activeTab === 'dashboard' ? 'active' : ''}
+            onClick={() => setActiveTab('dashboard')}
+          >
+            <i className="fas fa-chart-bar"></i> Дашборд
+          </button>
+          <button 
+            className={activeTab === 'products' ? 'active' : ''}
+            onClick={() => setActiveTab('products')}
+          >
+            <i className="fas fa-box"></i> Товары
+          </button>
+          <button 
+            className={activeTab === 'categories' ? 'active' : ''}
+            onClick={() => setActiveTab('categories')}
+          >
+            <i className="fas fa-list"></i> Категорії
+          </button>
+          <button 
+            className={activeTab === 'orders' ? 'active' : ''}
+            onClick={() => setActiveTab('orders')}
+          >
+            <i className="fas fa-shopping-cart"></i> Заказы
+          </button>
+        </div>
+          {activeTab === 'categories' && (
+            <div className="categories-management">
+              <h3>Категорії</h3>
+              <form onSubmit={editingCategory ? handleEditCategory : handleAddCategory} className="category-form">
+                <input
+                  type="text"
+                  placeholder="Назва категорії"
+                  value={editingCategory ? editingCategory.name : newCategory}
+                  onChange={e => editingCategory
+                    ? setEditingCategory({ ...editingCategory, name: e.target.value })
+                    : setNewCategory(e.target.value)
+                  }
+                  required
+                />
+                <button type="submit">{editingCategory ? 'Оновити' : 'Додати'}</button>
+                {editingCategory && (
+                  <button type="button" className="cancel-btn" onClick={() => setEditingCategory(null)}>Відміна</button>
+                )}
+              </form>
+              <ul className="category-list">
+                {categories.map(cat => (
+                  <li key={cat.id} className={selectedCategoryId == cat.id ? 'selected' : ''}>
+                    <span onClick={() => setSelectedCategoryId(cat.id)}>{cat.name}</span>
+                    <button onClick={() => setEditingCategory(cat)}>✏️</button>
+                    <button onClick={() => handleDeleteCategory(cat.id)}>🗑️</button>
+                  </li>
+                ))}
+              </ul>
+              <h4>Підкатегорії</h4>
+              {selectedCategoryId ? (
+                <>
+                  <form onSubmit={editingSubcategory ? handleEditSubcategory : handleAddSubcategory} className="subcategory-form">
+                    <input
+                      type="text"
+                      placeholder="Назва підкатегорії"
+                      value={editingSubcategory ? editingSubcategory.name : newSubcategory}
+                      onChange={e => editingSubcategory
+                        ? setEditingSubcategory({ ...editingSubcategory, name: e.target.value })
+                        : setNewSubcategory(e.target.value)
+                      }
+                      required
+                    />
+                    <button type="submit">{editingSubcategory ? 'Оновити' : 'Додати'}</button>
+                    {editingSubcategory && (
+                      <button type="button" className="cancel-btn" onClick={() => setEditingSubcategory(null)}>Відміна</button>
+                    )}
+                  </form>
+                  <ul className="subcategory-list">
+                    {subcategories.map(sub => (
+                      <li key={sub.id}>
+                        <span>{sub.name}</span>
+                        <button onClick={() => setEditingSubcategory(sub)}>✏️</button>
+                        <button onClick={() => handleDeleteSubcategory(sub.id)}>🗑️</button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : <p>Оберіть категорію для перегляду підкатегорій</p>}
+            </div>
+          )}
       </div>
     )
   }
