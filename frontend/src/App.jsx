@@ -35,7 +35,9 @@ function App() {
     text: ''
   })
 
-  const API_BASE_URL = 'http://localhost:3001/api'
+  const API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3001/api' 
+    : '/api'
 
   // Функция загрузки товаров
   const fetchProducts = async () => {
