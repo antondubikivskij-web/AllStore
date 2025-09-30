@@ -53,7 +53,6 @@ const sendTelegramNotification = async (message, product = null, customChatId = 
         // Відправляємо красиву картку товару
         let caption = `🆕 <b>Новий товар додано!</b>\n\n` +
           `📦 <b>${product.name}</b>\n`;
-          
         // Додаємо інформацію про ціну з урахуванням знижки
         if (hasDiscount) {
           caption += `💰 Ціна: <s>${product.price} ₴</s> ${discountedPrice.toFixed(2)} ₴\n` +
@@ -61,11 +60,12 @@ const sendTelegramNotification = async (message, product = null, customChatId = 
         } else {
           caption += `💰 Ціна: ${product.price} ₴\n`;
         }
-        
         caption += `📂 Категорія: ${product.category || 'Не вказано'}\n` +
           `📦 Залишок: ${product.stock || 0} шт.\n` +
           `📝 Опис: ${product.description || 'Без опису'}\n\n` +
-          `🛒 Замовляйте на нашому сайті!`;
+          `🛒 Замовляйте на нашому сайті!\n` +
+          `🌐 <a href="https://allstore-frontend.onrender.com/">allstore-frontend.onrender.com</a>\n` +
+          `📲 <a href="https://t.me/AllStore1208">Наш Telegram</a>`;
         
         if (product.image) {
           await bot.sendPhoto(chatId, product.image, {
@@ -139,9 +139,94 @@ function initDatabase() {
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
 
-
+  // Таблица подкатегорий
+  db.run(`CREATE TABLE IF NOT EXISTS subcategories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    category_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(name, category_id),
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+  )`);
 
   // Таблица корзины
+// Получить все подкатегории (з опціональним фільтром по категорії)
+app.get('/api/subcategories', (req, res) => {
+  const { category_id } = req.query;
+  let sql = 'SELECT * FROM subcategories';
+  let params = [];
+  if (category_id) {
+    sql += ' WHERE category_id = ?';
+    params.push(category_id);
+  }
+  sql += ' ORDER BY name';
+  db.all(sql, params, (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json(rows);
+  });
+});
+
+// Додати підкатегорію
+app.post('/api/admin/subcategories', (req, res) => {
+  const { name, category_id } = req.body;
+  if (!name || !category_id) {
+    res.status(400).json({ error: 'Назва та category_id обовʼязкові' });
+    return;
+  }
+  db.run(`INSERT INTO subcategories (name, category_id) VALUES (?, ?)`, [name, category_id], function(err) {
+    if (err) {
+      if (err.message.includes('UNIQUE constraint failed')) {
+        res.status(400).json({ error: 'Підкатегорія з такою назвою вже існує для цієї категорії' });
+      } else {
+        res.status(500).json({ error: err.message });
+      }
+      return;
+    }
+    res.json({ id: this.lastID, name, category_id, message: 'Підкатегорія додана' });
+  });
+});
+
+// Оновити підкатегорію
+app.put('/api/admin/subcategories/:id', (req, res) => {
+  const { name, category_id } = req.body;
+  if (!name || !category_id) {
+    res.status(400).json({ error: 'Назва та category_id обовʼязкові' });
+    return;
+  }
+  db.run(`UPDATE subcategories SET name = ?, category_id = ? WHERE id = ?`, [name, category_id, req.params.id], function(err) {
+    if (err) {
+      if (err.message.includes('UNIQUE constraint failed')) {
+        res.status(400).json({ error: 'Підкатегорія з такою назвою вже існує для цієї категорії' });
+      } else {
+        res.status(500).json({ error: err.message });
+      }
+      return;
+    }
+    if (this.changes === 0) {
+      res.status(404).json({ error: 'Підкатегорія не знайдена' });
+      return;
+    }
+    res.json({ id: parseInt(req.params.id), name, category_id, message: 'Підкатегорія оновлена' });
+  });
+});
+
+// Видалити підкатегорію
+app.delete('/api/admin/subcategories/:id', (req, res) => {
+  db.run(`DELETE FROM subcategories WHERE id = ?`, [req.params.id], function(err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    if (this.changes === 0) {
+      res.status(404).json({ error: 'Підкатегорія не знайдена' });
+      return;
+    }
+    res.json({ message: 'Підкатегорія видалена' });
+  });
+});
   db.run(`CREATE TABLE IF NOT EXISTS cart (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     product_id INTEGER,
