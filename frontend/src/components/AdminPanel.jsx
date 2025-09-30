@@ -408,8 +408,8 @@ function AdminPanel({ onClose, onProductUpdate }) {
                 {categories.map(cat => (
                   <li key={cat.id} className={selectedCategoryId == cat.id ? 'selected' : ''}>
                     <span onClick={() => setSelectedCategoryId(cat.id)}>{cat.name}</span>
-                    <button onClick={() => setEditingCategory(cat)}>✏️</button>
-                    <button onClick={() => handleDeleteCategory(cat.id)}>🗑️</button>
+                    <button title="Редагувати" onClick={() => setEditingCategory(cat)}>✏️</button>
+                    <button title="Видалити" onClick={() => handleDeleteCategory(cat.id)}>🗑️</button>
                   </li>
                 ))}
               </ul>
@@ -436,8 +436,8 @@ function AdminPanel({ onClose, onProductUpdate }) {
                     {subcategories.map(sub => (
                       <li key={sub.id}>
                         <span>{sub.name}</span>
-                        <button onClick={() => setEditingSubcategory(sub)}>✏️</button>
-                        <button onClick={() => handleDeleteSubcategory(sub.id)}>🗑️</button>
+                        <button title="Редагувати" onClick={() => setEditingSubcategory(sub)}>✏️</button>
+                        <button title="Видалити" onClick={() => handleDeleteSubcategory(sub.id)}>🗑️</button>
                       </li>
                     ))}
                   </ul>
