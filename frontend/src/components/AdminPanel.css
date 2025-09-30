@@ -1,3 +1,74 @@
+/* Категорії та підкатегорії */
+.categories-management {
+  color: #fff;
+  margin-bottom: 30px;
+}
+.category-form, .subcategory-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+.category-form input, .subcategory-form input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid #ff9800;
+  background: #222b3a;
+  color: #fff;
+}
+.category-form button, .subcategory-form button {
+  background: #ff9800;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.category-form button.cancel-btn, .subcategory-form button.cancel-btn {
+  background: #444c5e;
+  color: #fff;
+}
+.category-form button:hover, .subcategory-form button:hover {
+  background: #e67e22;
+}
+.category-list, .subcategory-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+}
+.category-list li, .subcategory-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #222b3a;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  padding: 8px 12px;
+  transition: background 0.2s;
+}
+.category-list li.selected {
+  background: #ff9800;
+  color: #fff;
+}
+.category-list li span, .subcategory-list li span {
+  flex: 1;
+  cursor: pointer;
+}
+.category-list li button, .subcategory-list li button {
+  background: #444c5e;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 4px 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.category-list li button:hover, .subcategory-list li button:hover {
+  background: #ff9800;
+}
 /* Admin Panel Styles */
 .admin-overlay {
   position: fixed;
