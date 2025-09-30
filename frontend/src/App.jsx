@@ -54,12 +54,23 @@ function App() {
         console.log('Получено товаров:', data.length)
         
         // Добавляем изображения для товаров
-        const productsWithImages = data.map(product => ({
-          ...product,
-          image: product.image || `https://via.placeholder.com/400x300?text=AllStore+Product`,
-          rating: (Math.random() * 2 + 3).toFixed(1), // Рейтинг от 3 до 5
-          finalPrice: product.discount > 0 ? product.discounted_price : product.price
-        }))
+        const productsWithImages = data.map(product => {
+          // Обрабатываем множественные фото
+          const allImages = []
+          if (product.image) allImages.push(product.image)
+          if (product.images) {
+            const additionalImages = product.images.split(',').map(url => url.trim()).filter(url => url.length > 0)
+            allImages.push(...additionalImages)
+          }
+          
+          return {
+            ...product,
+            image: allImages[0] || `https://via.placeholder.com/400x300?text=AllStore+Product`,
+            allImages: allImages, // Все фото
+            rating: (Math.random() * 2 + 3).toFixed(1),
+            finalPrice: product.discount > 0 ? product.discounted_price : product.price
+          }
+        })
         setProducts(productsWithImages)
         setError(null)
       } else {
@@ -725,7 +736,29 @@ function App() {
             </button>
             <div className="modal-body">
               <div className="modal-image">
-                <img src={selectedProduct.image} alt={selectedProduct.name} />
+                {selectedProduct.allImages && selectedProduct.allImages.length > 1 ? (
+                  <div className="image-gallery">
+                    <div className="main-image">
+                      <img src={selectedProduct.allImages[0]} alt={selectedProduct.name} />
+                    </div>
+                    <div className="thumbnail-images">
+                      {selectedProduct.allImages.map((img, index) => (
+                        <img 
+                          key={index} 
+                          src={img} 
+                          alt={`Фото ${index + 1}`}
+                          className="thumbnail"
+                          onClick={(e) => {
+                            const mainImg = e.target.closest('.modal-image').querySelector('.main-image img')
+                            mainImg.src = img
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <img src={selectedProduct.image} alt={selectedProduct.name} />
+                )}
               </div>
               <div className="modal-info">
                 <h2>{selectedProduct.name}</h2>
