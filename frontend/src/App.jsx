@@ -37,7 +37,7 @@ function App() {
 
   const API_BASE_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:3001/api' 
-    : '/api'
+    : 'https://allstore-on9z.onrender.com/api'
 
   // Функция загрузки товаров
   const fetchProducts = async () => {
@@ -45,9 +45,14 @@ function App() {
     setError(null)
     
     try {
+      console.log('Загружаю товары с:', `${API_BASE_URL}/products`)
       const response = await fetch(`${API_BASE_URL}/products`)
+      console.log('Ответ сервера:', response.status, response.statusText)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('Получено товаров:', data.length)
+        
         // Добавляем изображения для товаров
         const productsWithImages = data.map(product => ({
           ...product,
@@ -56,13 +61,21 @@ function App() {
           finalPrice: product.discount > 0 ? product.discounted_price : product.price
         }))
         setProducts(productsWithImages)
+        setError(null)
       } else {
-        throw new Error('Помилка завантаження товарів')
+        console.error('Ошибка HTTP:', response.status)
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
       }
     } catch (error) {
       console.error('Помилка завантаження товарів:', error)
-      setError('Не вдалося завантажити товари. Перевірте підключення до сервера.')
-      // Встановлюємо порожній масив замість фейкових даних
+      
+      // Показываем более детальную ошибку
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        setError('Сервер недоступен. Возможно, он еще запускается. Попробуйте через 30 секунд.')
+      } else {
+        setError(`Ошибка загрузки: ${error.message}`)
+      }
+      
       setProducts([])
     } finally {
       setProductsLoading(false)
@@ -116,13 +129,18 @@ function App() {
 
       const fetchCategories = async () => {
         try {
+          console.log('Загружаю категории с:', `${API_BASE_URL}/categories`)
           const response = await fetch(`${API_BASE_URL}/categories`)
           if (response.ok) {
             const data = await response.json()
+            console.log('Получено категорий:', data.length)
             setCategories(data)
+          } else {
+            console.error('Ошибка загрузки категорий:', response.status)
           }
         } catch (error) {
           console.error('Ошибка загрузки категорий:', error)
+          setCategories([])
         }
       }
 
