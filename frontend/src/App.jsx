@@ -148,7 +148,7 @@ function App() {
       // Simulate loading
       const timer = setTimeout(() => {
         setLoading(false)
-      }, 2000)
+      }, 1000)
 
       return () => clearTimeout(timer)
     }
@@ -435,7 +435,7 @@ function App() {
           <p>{error}</p>
           <button 
             className="admin-access-btn"
-            onClick={() => window.open('http://localhost:3001/admin', '_blank')}
+            onClick={() => window.open('/admin', '_blank')}
           >
             <i className="fas fa-cog"></i> Адмін-панель
           </button>
