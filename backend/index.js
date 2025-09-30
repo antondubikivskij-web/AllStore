@@ -659,6 +659,18 @@ app.get('/api/categories', (req, res) => {
   });
 });
 
+// Получить категории с ID (для админки)
+app.get('/api/admin/categories', (req, res) => {
+  db.all('SELECT * FROM categories ORDER BY name', (err, rows) => {
+    if (err) {
+      console.error('Ошибка получения категорий:', err);
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json(rows);
+  });
+});
+
 // Добавить категорию (админ)
 app.post('/api/admin/categories', (req, res) => {
   const { name } = req.body;
